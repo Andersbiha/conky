@@ -1,0 +1,159 @@
+################################# Default Config ################################
+out_to_x no
+own_window no
+out_to_console yes
+background no
+max_text_width 0
+if_up_strictness address
+use_spacer left
+
+# Update interval in seconds
+update_interval 8.0
+
+# Number of run times (0 = forever)
+total_run_times 0
+
+# Shorten units (kiB->k, GiB->G, etc.).
+short_units yes
+
+# Force UTF8
+override_utf8_locale no
+
+# Number of cpu samples to average
+cpu_avg_samples 2
+
+
+################# Everything under this will be output to the bar ###############
+TEXT
+
+######################### Send warnings upon low battery  #######################
+${if_match ${laptop_mode}==0}
+ ${if_match ${battery_percent BAT1}<15}
+  ${if_match ${battery_percent BAT1}<6}
+    ${exec notify-send -u critical -t 10000 "Suspending system..."}
+	${exec paplay /usr/share/sounds/ubuntu/stereo/service-login.ogg}
+	${exec paplay /usr/share/sounds/ubuntu/stereo/service-logout.ogg}
+  ${else}
+   ${exec n otify-send -u critical -t 10000 "Missin' the juice! Preparing to be suspended..."}
+  ${endif}
+ ${endif}
+${endif}
+
+
+################### Json output for the bar to be read by i3  ###################
+ [
+
+    # Ethernet
+    {
+        "full_text" : "",
+        "color" : ${if_up eth0}"\#95ff00"${else}"\#ff4000"${endif},
+        "separator" : ${if_up eth0}false${else}true${endif}
+    },
+    ${if_up eth0}
+    {
+        "full_text" : "${upspeed eth0}  ${downspeed eth0}",
+        "color" : "\#FFFFFF"
+    },
+    ${endif}
+
+    # Wireless
+    {
+        "full_text" : "${wireless_link_qual_perc wlan0}% ${wireless_essid wlan0}",
+        "color" : ${if_up wlan0}"\#95ff00"${else}"\#ff4000"${endif},
+        "separator" : ${if_up wlan0}false${else}true${endif}
+    },
+    ${if_up wlan0}
+    {
+        "full_text" : " ${upspeed wlan0}  ${downspeed wlan0}",
+        "color" : "\#FFFFFF"
+    },
+    ${endif}
+
+    # Volume
+    {
+        "full_text" : " ",
+        "color" : "\#FFFFFF",
+        "separator" : false,
+        "separator_block_width" : 6
+    },
+    {
+        "full_text" : "(${exec amixer -D pulse get Master | egrep -o "[0-9]+%" -m 1}) ",
+        "color" : "\#FFFFFF",
+        "separator" : false
+    },
+
+    # Brighness
+    {
+        "full_text" : "",
+        "color" : "\#F7FE2E",
+        "separator" : false,
+        "separator_block_width" : 6
+    },
+    {
+        "full_text" : "(${exec xbacklight| awk '{printf("%d\n",$1 + 0.5)}'}%) ",
+        "color" : "\#FFFFFF"
+    },
+
+
+    # CPU
+    {
+        "full_text" : "   CPU",
+        "color" : ${if_match ${cpu}<50}"\#95ff00"${else}"\#ff4000"${endif},
+        "separator" : false,
+        "separator_block_width" : 6
+    },
+    {
+        "full_text":"($cpu%)",
+        "color" : "\#ffffff",
+        "separator" : false,
+        "separator_block_width" : 6
+    },
+  
+    # RAM
+    {
+        "full_text" : "   RAM",
+        "color" : ${if_match ${memperc}<80}"\#95ff00"${else}"\#ff4000"${endif},
+        "separator" : false,
+        "separator_block_width" : 6
+    },
+    {
+        "full_text" : "(${memperc}%)",
+        "color" : "\#ffffff"
+    },
+    
+    # Battery Config
+    {
+        "full_text" : " ",
+        "color" : ${if_match ${battery_percent BAT1}>50}"\#95ff00"${else}"\#ff4000"${endif},
+        "separator" : false,
+        "separator_block_width" : 6
+    },
+    {
+        "full_text" : "(${battery_percent BAT1}%) ${battery_time BAT1}",
+        "color" : "\#ffffff"
+    },
+      
+    # Calender / Time config
+    {
+        "full_text" : "  ",
+        "color" : "\#ffffff",
+        "separator" : false,
+        "separator_block_width" : 6
+    },
+    {
+        "full_text" : "${time %a %b %d}",
+        "color" : "\#ffffff",
+        "separator" : false
+    },
+    {
+        "full_text" : "  ",
+        "color" : "\#ffffff",
+        "separator" : false,
+        "separator_block_width" : 6
+    },
+    {
+        "full_text" : "${time %H:%M:%S} ",
+        "color" : "\#ffffff",
+        "separator" : false
+    }
+],
